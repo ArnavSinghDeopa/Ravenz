@@ -1,192 +1,97 @@
-var path,mainCyclist;
-var player1,player2,player3;
-var pathImg,mainRacerImg1,mainRacerImg2;
+const Engine = Matter.Engine;
+const World= Matter.World;
+const Bodies = Matter.Bodies;
 
-var oppPink1Img,oppPink2Img;
-var oppYellow1Img,oppYellow2Img;
-var oppRed1Img,oppRed2Img;
-var gameOverImg,cycleBell;
+var engine, world;
 
-var pinkCG, yellowCG,redCG; 
+var particle1, particle2,particle3,particle4,particle5;
+var particle6, particle7,particle8,particle9,particle10;
+var rotator1, rotator2, rotator3;
+var block1, block2;
 
-var END =0;
-var PLAY =1;
-var gameState = PLAY;
-
-var distance=0;
-var gameOver, restart;
-
-function preload(){
-  pathImg = loadImage("Road.png");
-  mainRacerImg1 = loadAnimation("mainPlayer1.png","mainPlayer2.png");
-  mainRacerImg2= loadAnimation("mainPlayer3.png");
-  
-  oppPink1Img = loadAnimation("opponent1.png","opponent2.png");
-  oppPink2Img = loadAnimation("opponent3.png");
-  
-  oppYellow1Img = loadAnimation("opponent4.png","opponent5.png");
-  oppYellow2Img = loadAnimation("opponent6.png");
-  
-  oppRed1Img = loadAnimation("opponent7.png","opponent8.png");
-  oppRed2Img = loadAnimation("opponent9.png");
-  
-  cycleBell = loadSound("bell.mp3");
-  gameOverImg = loadImage("gameOver.png");
-}
+var angle1=60;
+var angle2=60;
+var angle3=60;
 
 function setup(){
-  
-createCanvas(1200,300);
-// Moving background
-path=createSprite(100,150);
-path.addImage(pathImg);
-path.velocityX = -5;
+    var canvas = createCanvas(550,600);
+    engine = Engine.create();
+    world = engine.world;
 
-//creating boy running
-mainCyclist  = createSprite(70,150);
-mainCyclist.addAnimation("SahilRunning",mainRacerImg1);
-mainCyclist.scale=0.07;
-  
-//set collider for mainCyclist
-
-//mainCyclist.setCollission("rectangle",0,0,40,40);
-
-
-  
-gameOver = createSprite(650,150);
-gameOver.addImage(gameOverImg);
-gameOver.scale = 0.8;
-gameOver.visible = false;  
-  
-pinkCG = new Group();
-yellowCG = new Group();
-redCG = new Group();
-  
-}
-
-function draw() {
-  background(0);
-  
-  drawSprites();
-  textSize(20);
-  fill(255);
-  text("Distance: "+ distance,900,30);
-  
-  if(gameState===PLAY){
-    
-   distance = distance + Math.round(getFrameRate()/50);
-   path.velocityX = -(6 + 2*distance/150);
-  
-   mainCyclist.y = World.mouseY;
-  
-   edges= createEdgeSprites();
-   mainCyclist .collide(edges);
-  
-  //code to reset the background
-  if(path.x < 0 ){
-    path.x = width/2;
-  }
-  
-    //code to play cycle bell sound
-  if(keyDown("space")) {
-    cycleBell.play();
-  }
-  
-  //creating continous opponent players
-  var select_oppPlayer = Math.round(random(1,3));
-  
-  if (World.frameCount % 150 == 0) {
-    if (select_oppPlayer == 1) {
-      pinkCyclists();
-    } else if (select_oppPlayer == 2) {
-      yellowCyclists();
-    } else {
-      redCyclists();
+    //created plane and block bodies
+    var plane_options={
+      isStatic: true
     }
-  }
-  
-   if(pinkCG.isTouching(mainCyclist)){
-     gameState = END;
-     player1.velocityY = 0;
-     player1.addAnimation("opponentPlayer1",oppPink2Img);
+
+    plane = Bodies.rectangle(600,height,1200,20,plane_options);
+    World.add(world,plane);
+    block1=Bodies.rectangle(100,400,150,20,plane_options);
+    World.add(world,block1);
+    block2=Bodies.rectangle(400,400,150,20,plane_options);
+    World.add(world,block2);
+
+    //created multiple of particle bodies 
+    var particle_options = {
+      restitution:0.4,
+      friction:0.02
     }
+
+    particle1 = Bodies.circle(220,10,10,particle_options);
+    World.add(world,particle1);
+    particle2 = Bodies.circle(220,10,10,particle_options);
+    World.add(world,particle2);
+    particle3 = Bodies.circle(225,10,10,particle_options);
+    World.add(world,particle3);
+    particle4 = Bodies.circle(230,10,10,particle_options);
+    World.add(world,particle4);
+    particle5 =Bodies.circle(230,10,10,particle_options);
+    World.add(world,particle5);
+
+    var rotator_options={
+      
+    };
+
+     rotator1 = rectangle(250,200,150,20,rotator_options);
+     World.add(world,rotator1);
+
     
-    if(yellowCG.isTouching(mainCyclist)){
-      gameState = END;
-      player2.velocityY = 0;
-      player2.addAnimation("opponentPlayer2",oppYellow2Img);
-    }
-    
-    if(redCG.isTouching(mainCyclist)){
-      gameState = END;
-      player3.velocityY = 0;
-      player3.addAnimation("opponentPlayer3",oppRed2Img);
-    }
-    
-}else if (gameState === END) {
-    gameOver.visible = true;
-  
-    textSize(20);
-    fill(255);
-    text("Press Up Arrow to Restart the game!", 500,200);
-  
-    path.velocityX = 0;
-    mainCyclist.velocityY = 0;
-    mainCyclist.addAnimation("SahilRunning",mainRacerImg2);
-  
-    pinkCG.setVelocityXEach(0);
-    pinkCG.setLifetimeEach(-1);
-  
-    yellowCG.setVelocityXEach(0);
-    yellowCG.setLifetimeEach(-1);
-  
-    redCG.setVelocityXEach(0);
-    redCG.setLifetimeEach(-1);
-    
-     if(keyDown("UP_ARROW")) {
-       reset;
-     }
+    rotator2 = Bodies.rectangle(250,200,150,20,rotator_options);
+    World.add(world,rotator2);
 
-    drawSprites();
-}
+    rotator3 = Bodies.rectangle(250,200,150,20,rotator_options);
+    World.add(world,rotator3);
+
+    //styling the bodies here
+    fill("brown");
+    rectMode(CENTER);
+    ellipseMode(RADIUS);
+
 }
 
-function pinkCyclists(){
-        player1 =createSprite(1100,Math.round(random(50, 250)));
-        player1.scale =0.06;
-        player1.velocityX = -(6 + 2*distance/150);
-        player1.addAnimation("opponentPlayer1",oppPink1Img);
-        player1.setLifetime=170;
-        pinkCG.add(player1);
-}
+function draw(){
+    background("lightgreen");
+    Engine.update(engine);
 
-function yellowCyclists(){
-        player2 =createSprite(1100,Math.round(random(50, 250)));
-        player2.scale =0.06;
-        player2.velocityX = -(6 + 2*distance/150);
-        player2.addAnimation("opponentPlayer2",oppYellow1Img);
-        player2.setLifetime=170;
-        yellowCG.add(player2);
-}
+  //created shape for plane and stand
+  rect(plane.position.x,plane.position.y,1200,20);
+  rect(block1.position.x,block1.position.y,150,20);
+  rect(block2.position.x,block2.position.y,150,20);
 
-function redCyclists(){
-        player3 =createSprite(1100,Math.round(random(50, 250)));
-        player3.scale =0.06;
-        player3.velocityX = -(6 + 2*distance/150);
-        player3.addAnimation("opponentPlayer3",oppRed1Img);
-        player3.setLifetime=170;
-        redCG.add(player3);
-}
+  //created shape for all the paticles
+  ellipse(particle1.position.x,particle1.position.y,10);
+  ellipse(particle2.position.x,particle2.position.y,10);
+  ellipse(particle3.position.x,particle3.position.y,10);
+  ellipse(particle4.position.x,particle4.position.y,10);
+  ellipse(particle5.position.x,particle5.position.y,10);
 
-function reset(){
-  gameState = END;
-  gameOver.visible = false;
-  mainCyclist.addAnimation("SahilRunning",mainRacerImg1);
+  //created shape for all the rotators
+  Matter.Body.rotate(rotator1,angle1)
+  push();
+  translate(rotator1.position.x,rotator1.position.y);
+  rotate(angle1);
+  rect(0,0,150,20);
+  pop();
+  angle1 +=0.2;
+
   
-  pinkCG.destroyEach();
-  yellowCG.destroyEach();
-  redCG.destroyEach();
-  
-  distance = 0;
- }
-
+}
